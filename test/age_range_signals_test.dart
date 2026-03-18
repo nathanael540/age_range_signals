@@ -1,7 +1,7 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:age_range_signals/age_range_signals.dart';
-import 'package:age_range_signals/age_range_signals_platform_interface.dart';
 import 'package:age_range_signals/age_range_signals_method_channel.dart';
+import 'package:age_range_signals/age_range_signals_platform_interface.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 class MockAgeRangeSignalsPlatform
@@ -269,6 +269,39 @@ void main() {
       expect(map['installId'], 'test-id');
     });
 
+    test('creates from map with declared status', () {
+      final map = {
+        'status': 'declared',
+        'ageLower': null,
+        'ageUpper': null,
+        'source': null,
+        'installId': 'test-install-id',
+      };
+
+      final result = AgeSignalsResult.fromMap(map);
+
+      expect(result.status, AgeSignalsStatus.declared);
+      expect(result.ageLower, null);
+      expect(result.ageUpper, null);
+      expect(result.source, null);
+      expect(result.installId, 'test-install-id');
+    });
+
+    test('toMap converts declared status correctly', () {
+      const result = AgeSignalsResult(
+        status: AgeSignalsStatus.declared,
+        installId: 'test-id',
+      );
+
+      final map = result.toMap();
+
+      expect(map['status'], 'declared');
+      expect(map['ageLower'], null);
+      expect(map['ageUpper'], null);
+      expect(map['source'], null);
+      expect(map['installId'], 'test-id');
+    });
+
     test('equality works correctly', () {
       const result1 = AgeSignalsResult(
         status: AgeSignalsStatus.verified,
@@ -278,9 +311,7 @@ void main() {
         status: AgeSignalsStatus.verified,
         ageLower: 18,
       );
-      const result3 = AgeSignalsResult(
-        status: AgeSignalsStatus.declined,
-      );
+      const result3 = AgeSignalsResult(status: AgeSignalsStatus.declined);
 
       expect(result1, equals(result2));
       expect(result1, isNot(equals(result3)));
@@ -304,7 +335,9 @@ void main() {
     test('formats message correctly with code', () {
       const exception = AgeSignalsException('Test message', 'TEST_CODE');
       expect(
-          exception.toString(), 'AgeSignalsException(TEST_CODE): Test message');
+        exception.toString(),
+        'AgeSignalsException(TEST_CODE): Test message',
+      );
     });
 
     test('formats message correctly without code', () {
@@ -336,32 +369,32 @@ void main() {
       AgeRangeSignalsPlatform.instance = mockPlatform;
     });
 
-    test('initialize with custom mockData returns custom supervised result',
-        () async {
-      await AgeRangeSignals.instance.initialize(
-        useMockData: true,
-        mockData: AgeSignalsMockData(
-          status: AgeSignalsStatus.supervised,
-          ageLower: 16,
-          ageUpper: 17,
-          installId: 'custom_id',
-        ),
-      );
+    test(
+      'initialize with custom mockData returns custom supervised result',
+      () async {
+        await AgeRangeSignals.instance.initialize(
+          useMockData: true,
+          mockData: AgeSignalsMockData(
+            status: AgeSignalsStatus.supervised,
+            ageLower: 16,
+            ageUpper: 17,
+            installId: 'custom_id',
+          ),
+        );
 
-      final result = await AgeRangeSignals.instance.checkAgeSignals();
+        final result = await AgeRangeSignals.instance.checkAgeSignals();
 
-      expect(result.status, AgeSignalsStatus.supervised);
-      expect(result.ageLower, 16);
-      expect(result.ageUpper, 17);
-      expect(result.installId, 'custom_id');
-    });
+        expect(result.status, AgeSignalsStatus.supervised);
+        expect(result.ageLower, 16);
+        expect(result.ageUpper, 17);
+        expect(result.installId, 'custom_id');
+      },
+    );
 
     test('initialize with verified mockData returns null ages', () async {
       await AgeRangeSignals.instance.initialize(
         useMockData: true,
-        mockData: const AgeSignalsMockData(
-          status: AgeSignalsStatus.verified,
-        ),
+        mockData: const AgeSignalsMockData(status: AgeSignalsStatus.verified),
       );
 
       final result = await AgeRangeSignals.instance.checkAgeSignals();
@@ -394,9 +427,7 @@ void main() {
     test('initialize with unknown mockData returns null ages', () async {
       await AgeRangeSignals.instance.initialize(
         useMockData: true,
-        mockData: const AgeSignalsMockData(
-          status: AgeSignalsStatus.unknown,
-        ),
+        mockData: const AgeSignalsMockData(status: AgeSignalsStatus.unknown),
       );
 
       final result = await AgeRangeSignals.instance.checkAgeSignals();
@@ -406,20 +437,22 @@ void main() {
       expect(result.ageUpper, null);
     });
 
-    test('initialize without mockData uses defaults (supervised 13-15)',
-        () async {
-      await AgeRangeSignals.instance.initialize(
-        useMockData: true,
-        // No mockData parameter
-      );
+    test(
+      'initialize without mockData uses defaults (supervised 13-15)',
+      () async {
+        await AgeRangeSignals.instance.initialize(
+          useMockData: true,
+          // No mockData parameter
+        );
 
-      final result = await AgeRangeSignals.instance.checkAgeSignals();
+        final result = await AgeRangeSignals.instance.checkAgeSignals();
 
-      expect(result.status, AgeSignalsStatus.supervised);
-      expect(result.ageLower, 13);
-      expect(result.ageUpper, 15);
-      expect(result.installId, 'test_install_id_12345');
-    });
+        expect(result.status, AgeSignalsStatus.supervised);
+        expect(result.ageLower, 13);
+        expect(result.ageUpper, 15);
+        expect(result.installId, 'test_install_id_12345');
+      },
+    );
 
     test('initialize with mockData including source field', () async {
       await AgeRangeSignals.instance.initialize(
@@ -461,9 +494,7 @@ void main() {
     });
 
     test('toMap converts verified status correctly', () {
-      const mockData = AgeSignalsMockData(
-        status: AgeSignalsStatus.verified,
-      );
+      const mockData = AgeSignalsMockData(status: AgeSignalsStatus.verified);
 
       final map = mockData.toMap();
 
@@ -481,10 +512,7 @@ void main() {
         ageUpper: 15,
       );
 
-      final copy = original.copyWith(
-        ageLower: 16,
-        ageUpper: 17,
-      );
+      final copy = original.copyWith(ageLower: 16, ageUpper: 17);
 
       expect(copy.status, AgeSignalsStatus.supervised);
       expect(copy.ageLower, 16);
@@ -502,9 +530,7 @@ void main() {
         ageLower: 13,
         ageUpper: 15,
       );
-      const mockData3 = AgeSignalsMockData(
-        status: AgeSignalsStatus.verified,
-      );
+      const mockData3 = AgeSignalsMockData(status: AgeSignalsStatus.verified);
 
       expect(mockData1, equals(mockData2));
       expect(mockData1, isNot(equals(mockData3)));
