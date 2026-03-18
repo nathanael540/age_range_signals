@@ -68,7 +68,8 @@ class AgeRangeSignalsPlugin : FlutterPlugin, MethodCallHandler {
         // Extract these values only when needed to avoid unnecessary work
         if (userStatus == AgeSignalsVerificationStatus.SUPERVISED ||
             userStatus == AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_PENDING ||
-            userStatus == AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_DENIED) {
+            userStatus == AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_DENIED ||
+            userStatus == AgeSignalsVerificationStatus.DECLARED) {
             val ageLower = mockDataMap?.get("ageLower") as? Int ?: 13
             val ageUpper = mockDataMap?.get("ageUpper") as? Int ?: 15
             val installId = mockDataMap?.get("installId") as? String ?: "test_install_id_12345"

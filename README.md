@@ -58,7 +58,7 @@ A Flutter plugin for age verification that supports Google Play Age Signals API 
 
 **Note:** The iOS DeclaredAgeRange API is only available on iOS 26.0+. On older iOS versions, the plugin will return an `UnsupportedPlatformException`. Your app can support older iOS versions and handle this gracefully.
 
-## Important: Brazilian Digital ECA Law (Lei 14.644)
+## Important: Brazilian Digital ECA Law (Lei 15.211)
 
 > ℹ️ **Brazil's Digital ECA law enforcement begins March 17, 2026.** Apps targeting Brazil must use `com.google.android.play:age-signals` version 0.0.3 or higher for full compliance. This plugin now includes the required version. See [Google Play Age Signals documentation](https://support.google.com/googleplay/android-developer/answer/6223646?hl=en#digital_eca_requirements) and [Law details](https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2025/lei/L15211.htm).
 

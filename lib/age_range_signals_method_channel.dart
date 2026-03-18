@@ -100,12 +100,6 @@ class MethodChannelAgeRangeSignals extends AgeRangeSignalsPlatform {
           e.code,
           details,
         );
-      case 'SDK_VERSION_OUTDATED':
-        return PlayServicesException(
-          e.message ?? 'Google Play Services version is outdated',
-          e.code,
-          details,
-        );
       default:
         return AgeSignalsException(
           e.message ?? 'An error occurred',
