@@ -132,6 +132,9 @@ try {
     case AgeSignalsStatus.supervisedApprovalDenied:
       print('Guardian denied access');
       break;
+    case AgeSignalsStatus.declared:
+      print('User declared their age through Google Play');
+      break;
     case AgeSignalsStatus.declined:
       print('User declined to share age information');
       break;
@@ -204,8 +207,9 @@ Future<void> checkUserAge() async {
     if (result.status == AgeSignalsStatus.verified) {
       // User is verified, proceed with age-appropriate content
       showMainContent();
-    } else if (result.status == AgeSignalsStatus.supervised) {
-      // User may be under supervision, show restricted content
+    } else if (result.status == AgeSignalsStatus.supervised ||
+               result.status == AgeSignalsStatus.declared) {
+      // User is under supervision or declared their age, check age range
       showRestrictedContent();
     } else {
       // Age unknown or declined, handle accordingly
@@ -339,6 +343,7 @@ Result object containing age verification information.
 | `supervised` | Populated / Populated† | Populated | Supervised account with approved age range |
 | `supervisedApprovalPending` | Populated / Populated† | Populated | Awaiting parent approval for changes |
 | `supervisedApprovalDenied` | Populated / Populated† | Populated | Parent denied changes; use previous approved age |
+| `declared` | Populated / Populated† | `null` | User declared their age through Google Play (Brazil only) |
 | `unknown` | `null` / `null` | `null` | User unverified/unsupervised, or API unavailable in region |
 
 **†Edge case:** For supervised users, `ageUpper` may be `null` if the parent-attested age is over 18 (e.g., `ageLower=18, ageUpper=null`).

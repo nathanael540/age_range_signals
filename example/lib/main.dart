@@ -256,11 +256,10 @@ class _AgeSignalsDemoState extends State<AgeSignalsDemo> {
                 ),
                 _buildScenarioChip(
                   'Declared Age',
-                  AgeSignalsMockData(
+                  const AgeSignalsMockData(
                     status: AgeSignalsStatus.declared,
                     ageLower: 13,
                     ageUpper: 15,
-                    installId: 'test_install_id_12345',
                   ),
                 ),
                 _buildScenarioChip(
