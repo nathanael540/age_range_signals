@@ -161,6 +161,12 @@ enum AgeSignalsStatus {
   /// On Android, this indicates the user is under parental controls and
   /// the guardian has explicitly denied the access request.
   supervisedApprovalDenied,
+
+  /// User declared their age through Google Play (Android only).
+  ///
+  /// On Android, this indicates the user has self-declared their age
+  /// through Google Play's age declaration flow (available with age-signals 0.0.3+).
+  declared,
 }
 
 /// Source of the age declaration (iOS only).

@@ -255,6 +255,14 @@ class _AgeSignalsDemoState extends State<AgeSignalsDemo> {
                   ),
                 ),
                 _buildScenarioChip(
+                  'Declared Age',
+                  const AgeSignalsMockData(
+                    status: AgeSignalsStatus.declared,
+                    ageLower: 13,
+                    ageUpper: 15,
+                  ),
+                ),
+                _buildScenarioChip(
                   'Unknown',
                   const AgeSignalsMockData(status: AgeSignalsStatus.unknown),
                 ),
@@ -427,6 +435,8 @@ class _AgeSignalsDemoState extends State<AgeSignalsDemo> {
         return 'Supervised (Awaiting guardian approval)';
       case AgeSignalsStatus.supervisedApprovalDenied:
         return 'Supervised (Guardian denied approval)';
+      case AgeSignalsStatus.declared:
+        return 'Declared (User has declared their age)';
       case AgeSignalsStatus.declined:
         return 'Declined (User chose not to share)';
       case AgeSignalsStatus.unknown:

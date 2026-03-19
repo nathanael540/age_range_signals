@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.android.play.agesignals.AgeSignalsManager
 import com.google.android.play.agesignals.AgeSignalsManagerFactory
 import com.google.android.play.agesignals.AgeSignalsRequest
+import com.google.android.play.agesignals.AgeSignalsException
 import com.google.android.play.agesignals.AgeSignalsResult
 import com.google.android.play.agesignals.model.AgeSignalsVerificationStatus
 import com.google.android.play.agesignals.testing.FakeAgeSignalsManager
@@ -55,6 +56,7 @@ class AgeRangeSignalsPlugin : FlutterPlugin, MethodCallHandler {
             "supervised" -> AgeSignalsVerificationStatus.SUPERVISED
             "supervisedApprovalPending" -> AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_PENDING
             "supervisedApprovalDenied" -> AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_DENIED
+            "declared" -> AgeSignalsVerificationStatus.DECLARED
             "unknown" -> AgeSignalsVerificationStatus.UNKNOWN
             else -> AgeSignalsVerificationStatus.SUPERVISED
         }
@@ -67,13 +69,20 @@ class AgeRangeSignalsPlugin : FlutterPlugin, MethodCallHandler {
         // Extract these values only when needed to avoid unnecessary work
         if (userStatus == AgeSignalsVerificationStatus.SUPERVISED ||
             userStatus == AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_PENDING ||
-            userStatus == AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_DENIED) {
+            userStatus == AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_DENIED ||
+            userStatus == AgeSignalsVerificationStatus.DECLARED) {
             val ageLower = mockDataMap?.get("ageLower") as? Int ?: 13
             val ageUpper = mockDataMap?.get("ageUpper") as? Int ?: 15
-            val installId = mockDataMap?.get("installId") as? String ?: "test_install_id_12345"
 
             resultBuilder.setAgeLower(ageLower)
             resultBuilder.setAgeUpper(ageUpper)
+        }
+
+        // installId is only set for supervised statuses, not for declared
+        if (userStatus == AgeSignalsVerificationStatus.SUPERVISED ||
+            userStatus == AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_PENDING ||
+            userStatus == AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_DENIED) {
+            val installId = mockDataMap?.get("installId") as? String ?: "test_install_id_12345"
             resultBuilder.setInstallId(installId)
         }
 
@@ -123,6 +132,7 @@ class AgeRangeSignalsPlugin : FlutterPlugin, MethodCallHandler {
                         AgeSignalsVerificationStatus.SUPERVISED -> "supervised"
                         AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_PENDING -> "supervisedApprovalPending"
                         AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_DENIED -> "supervisedApprovalDenied"
+                        AgeSignalsVerificationStatus.DECLARED -> "declared"
                         AgeSignalsVerificationStatus.UNKNOWN -> "unknown"
                         else -> "unknown"
                     }
@@ -157,6 +167,7 @@ class AgeRangeSignalsPlugin : FlutterPlugin, MethodCallHandler {
                     AgeSignalsVerificationStatus.SUPERVISED -> "supervised"
                     AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_PENDING -> "supervisedApprovalPending"
                     AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_DENIED -> "supervisedApprovalDenied"
+                    AgeSignalsVerificationStatus.DECLARED -> "declared"
                     AgeSignalsVerificationStatus.UNKNOWN -> "unknown"
                     else -> "unknown"
                 }
@@ -172,31 +183,24 @@ class AgeRangeSignalsPlugin : FlutterPlugin, MethodCallHandler {
                 result.success(resultMap)
             }
             .addOnFailureListener { exception ->
-                // Parse exception to provide more specific error codes
                 val errorMessage = exception.message ?: "An error occurred while checking age signals"
-                val errorCode = when {
-                    // Google Play Services related errors
-                    errorMessage.contains("GooglePlayServices", ignoreCase = true) ||
-                    errorMessage.contains("Play Services", ignoreCase = true) -> "PLAY_SERVICES_ERROR"
-
-                    // Network related errors
-                    errorMessage.contains("network", ignoreCase = true) ||
-                    errorMessage.contains("connection", ignoreCase = true) ||
-                    errorMessage.contains("timeout", ignoreCase = true) -> "NETWORK_ERROR"
-
-                    // User not signed in
-                    errorMessage.contains("not signed in", ignoreCase = true) ||
-                    errorMessage.contains("authentication", ignoreCase = true) -> "USER_NOT_SIGNED_IN"
-
-                    // Regional availability
-                    errorMessage.contains("not available", ignoreCase = true) ||
-                    errorMessage.contains("region", ignoreCase = true) -> "API_NOT_AVAILABLE"
-
-                    // User cancelled
-                    errorMessage.contains("cancel", ignoreCase = true) ||
-                    errorMessage.contains("abort", ignoreCase = true) -> "USER_CANCELLED"
-
-                    else -> "API_ERROR"
+                val errorCode = if (exception is AgeSignalsException) {
+                    when (exception.errorCode) {
+                        -1 -> "API_NOT_AVAILABLE"
+                        -2 -> "PLAY_SERVICES_ERROR"
+                        -3 -> "NETWORK_ERROR"
+                        -4 -> "PLAY_SERVICES_ERROR"
+                        -5 -> "PLAY_SERVICES_ERROR"
+                        -6 -> "PLAY_SERVICES_ERROR"
+                        -7 -> "PLAY_SERVICES_ERROR"
+                        -8 -> "API_ERROR"
+                        -9 -> "API_NOT_AVAILABLE"
+                        -10 -> "SDK_VERSION_OUTDATED"
+                        -100 -> "API_ERROR"
+                        else -> "API_ERROR"
+                    }
+                } else {
+                    "API_ERROR"
                 }
 
                 result.error(

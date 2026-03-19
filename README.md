@@ -58,6 +58,10 @@ A Flutter plugin for age verification that supports Google Play Age Signals API 
 
 **Note:** The iOS DeclaredAgeRange API is only available on iOS 26.0+. On older iOS versions, the plugin will return an `UnsupportedPlatformException`. Your app can support older iOS versions and handle this gracefully.
 
+## Important: Brazilian Digital ECA Law (Lei 15.211)
+
+> ℹ️ **Brazil's Digital ECA law enforcement begins March 17, 2026.** Apps targeting Brazil must use `com.google.android.play:age-signals` version 0.0.3 or higher for full compliance. This plugin now includes the required version. See [Google Play Age Signals documentation](https://support.google.com/googleplay/android-developer/answer/6223646?hl=en#digital_eca_requirements) and [Law details](https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2025/lei/L15211.htm).
+
 ## Important: Texas SB 2420 Enforcement Paused
 
 > ⚠️ On **December 23, 2025**, a federal court [issued a preliminary injunction](https://ccianet.org/news/2025/12/judge-blocks-texass-app-store-accountability-act-as-unconstitutional-speech-restriction) blocking Texas SB 2420 from taking effect.
@@ -127,6 +131,9 @@ try {
       break;
     case AgeSignalsStatus.supervisedApprovalDenied:
       print('Guardian denied access');
+      break;
+    case AgeSignalsStatus.declared:
+      print('User declared their age through Google Play');
       break;
     case AgeSignalsStatus.declined:
       print('User declined to share age information');
@@ -200,8 +207,9 @@ Future<void> checkUserAge() async {
     if (result.status == AgeSignalsStatus.verified) {
       // User is verified, proceed with age-appropriate content
       showMainContent();
-    } else if (result.status == AgeSignalsStatus.supervised) {
-      // User may be under supervision, show restricted content
+    } else if (result.status == AgeSignalsStatus.supervised ||
+               result.status == AgeSignalsStatus.declared) {
+      // User is under supervision or declared their age, check age range
       showRestrictedContent();
     } else {
       // Age unknown or declined, handle accordingly
@@ -335,6 +343,7 @@ Result object containing age verification information.
 | `supervised` | Populated / Populated† | Populated | Supervised account with approved age range |
 | `supervisedApprovalPending` | Populated / Populated† | Populated | Awaiting parent approval for changes |
 | `supervisedApprovalDenied` | Populated / Populated† | Populated | Parent denied changes; use previous approved age |
+| `declared` | Populated / Populated† | `null` | User declared their age through Google Play (Brazil only) |
 | `unknown` | `null` / `null` | `null` | User unverified/unsupervised, or API unavailable in region |
 
 **†Edge case:** For supervised users, `ageUpper` may be `null` if the parent-attested age is over 18 (e.g., `ageLower=18, ageUpper=null`).
@@ -358,6 +367,7 @@ Enum representing the verification status:
 - `supervised` - User is under parental supervision (Android) or declared age is below configured age gates (iOS)
 - `supervisedApprovalPending` - User is supervised and awaiting guardian approval (Android only)
 - `supervisedApprovalDenied` - User is supervised and guardian denied approval (Android only)
+- `declared` - User declared their age through Google Play's age declaration flow (Android only)
 - `declined` - User declined to share age (iOS only)
 - `unknown` - Age information not available or user is outside applicable region (both platforms)
 

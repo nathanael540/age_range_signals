@@ -2,9 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'age_range_signals_platform_interface.dart';
-import 'src/models/age_signals_result.dart';
-import 'src/models/age_signals_mock_data.dart';
 import 'src/exceptions/age_signals_exception.dart';
+import 'src/models/age_signals_mock_data.dart';
+import 'src/models/age_signals_result.dart';
 
 /// An implementation of [AgeRangeSignalsPlatform] that uses method channels.
 class MethodChannelAgeRangeSignals extends AgeRangeSignalsPlatform {
@@ -77,6 +77,7 @@ class MethodChannelAgeRangeSignals extends AgeRangeSignalsPlatform {
           details,
         );
       case 'PLAY_SERVICES_ERROR':
+      case 'SDK_VERSION_OUTDATED':
         return PlayServicesException(
           e.message ?? 'Google Play Services is unavailable or outdated',
           e.code,
