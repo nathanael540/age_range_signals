@@ -1,6 +1,6 @@
 ## 0.5.1
 
-* **Android**: Updated `com.google.android.play:age-signals` to version 0.0.3
+* **Android**: Updated `com.google.android.play:age-signals` to version 0.0.3 (#25, thanks to @nathanael540)
   * **Brazilian Digital ECA Law (Lei 15.211) Support**: Version 0.0.3 is required for apps targeting Brazil
   * New user status: `DECLARED` for users who have declared their age through Google Play
   * Refactored error handling to use structured `AgeSignalsException.errorCode` instead of string matching
